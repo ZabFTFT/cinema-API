@@ -1,10 +1,7 @@
-import os
-import uuid
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.conf import settings
-from django.utils.text import slugify
+from cinema.utils import movie_image_file_path
 
 
 class CinemaHall(models.Model):
@@ -16,14 +13,14 @@ class CinemaHall(models.Model):
     def capacity(self) -> int:
         return self.rows * self.seats_in_row
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -31,19 +28,12 @@ class Actor(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.first_name + " " + self.last_name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
-
-
-def movie_image_file_path(instance, filename):
-    _, extension = os.path.splitext(filename)
-    filename = f"{slugify(instance.title)}-{uuid.uuid4()}{extension}"
-
-    return os.path.join("uploads/movies/", filename)
 
 
 class Movie(models.Model):
@@ -56,8 +46,9 @@ class Movie(models.Model):
 
     class Meta:
         ordering = ["title"]
+        default_related_name = "movies"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
 
@@ -68,8 +59,9 @@ class MovieSession(models.Model):
 
     class Meta:
         ordering = ["-show_time"]
+        default_related_name = "movie_sessions"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.movie.title + " " + str(self.show_time)
 
 
@@ -79,11 +71,12 @@ class Order(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
 
-    def __str__(self):
-        return str(self.created_at)
-
     class Meta:
         ordering = ["-created_at"]
+        default_related_name = "orders"
+
+    def __str__(self) -> str:
+        return str(self.created_at)
 
 
 class Ticket(models.Model):
@@ -96,8 +89,20 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
 
+    class Meta:
+        unique_together = ("movie_session", "row", "seat")
+        ordering = ["row", "seat"]
+        default_related_name = "tickets"
+
+    def __str__(self) -> str:
+        return (
+            f"{str(self.movie_session)} (row: {self.row}, seat: {self.seat})"
+        )
+
     @staticmethod
-    def validate_ticket(row, seat, cinema_hall, error_to_raise):
+    def validate_ticket(
+        row: int, seat: int, cinema_hall: CinemaHall, error_to_raise
+    ) -> None:
         for ticket_attr_value, ticket_attr_name, cinema_hall_attr_name in [
             (row, "row", "rows"),
             (seat, "seat", "seats_in_row"),
@@ -113,7 +118,7 @@ class Ticket(models.Model):
                     }
                 )
 
-    def clean(self):
+    def clean(self) -> None:
         Ticket.validate_ticket(
             self.row,
             self.seat,
@@ -132,12 +137,3 @@ class Ticket(models.Model):
         return super(Ticket, self).save(
             force_insert, force_update, using, update_fields
         )
-
-    def __str__(self):
-        return (
-            f"{str(self.movie_session)} (row: {self.row}, seat: {self.seat})"
-        )
-
-    class Meta:
-        unique_together = ("movie_session", "row", "seat")
-        ordering = ["row", "seat"]
