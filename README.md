@@ -21,7 +21,9 @@ movie sessions, orders, and tickets.
    ```
 - Activate the virtual environment by running:<br>
     ```bash
-   source venv/bin/activate
+   Windows: venv\Scripts\activate
+  
+   Linux/MacOs: source venv/bin/activate
   ```
 - Install the required packages by running:<br>
     ```bash
@@ -30,11 +32,28 @@ movie sessions, orders, and tickets.
 - Set the required environment variables in .env file(use .env.sample) **OR**
 - Set the required environment variables by running the following commands:<br>
    ```bash
+  For Windows: use <set> <env_variable>
+  
+   set DB_HOST=YOUR_DB_HOSTNAME
+   set DB_NAME=YOUR_DB_NAME
+   set DB_USER=YOUR_DB_USER
+   set DB_PASSWORD=YOUR_DB_PASSWORD
+   set DB_SECRET_KEY=YOUR_SECRET_KEY
+   set DJANGO_SECRET_KEY=DJANGO_SECRET_KEY
+   set ALLOWED_HOSTS=ALLOWED_HOSTS
+   set DEBUG=DEBUG
+  ```
+     ```bash
+  For Linux/MacOS: use <export> <env_variable>
+  
    export DB_HOST=YOUR_DB_HOSTNAME
    export DB_NAME=YOUR_DB_NAME
    export DB_USER=YOUR_DB_USER
    export DB_PASSWORD=YOUR_DB_PASSWORD
    export DB_SECRET_KEY=YOUR_SECRET_KEY
+   export DJANGO_SECRET_KEY=DJANGO_SECRET_KEY
+   export ALLOWED_HOSTS=ALLOWED_HOSTS
+   export DEBUG=DEBUG
   ```
 - Apply the database migrations by running:<br>
     ```bash
@@ -51,6 +70,7 @@ movie sessions, orders, and tickets.
 - Build the Docker image by running:<br>
     ```bash
     docker-compose build
+  
     docker-compose up
     ```
 ### Getting Access 
@@ -70,3 +90,8 @@ with the user's email and password in the request body.
 - Creation of cinema halls
 - Addition of movie sessions
 - Filtering of movies and movie sessions
+
+### Demo
+![cinema.png](demo/3991daabc1b7563b001dfb728fd63b98.png)
+![user.png](demo/f16764800e00d01056f2d172579bbcb6.png)
+![detail.png](demo/2faabed003cf1533d82799f6c2b106dd.png)
